@@ -5,7 +5,7 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from werkzeug.utils import secure_filename
 
-from utils import allowed_file, image_to_buffer, get_image_description
+from src.utils import allowed_file, image_to_buffer, get_image_description
 
 
 UPLOAD_FOLDER = 'images'
@@ -14,7 +14,7 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 load_dotenv()
-os.environ["REPLICATE_API_TOKEN"] = os.getenv("REPLICATE_API_KEY")
+os.environ["REPLICATE_API_TOKEN"] = os.getenv("REPLICATE_API_TOKEN")
 
 MONGO_URI = "mongodb://localhost:27017/moda"
 client = MongoClient(MONGO_URI)

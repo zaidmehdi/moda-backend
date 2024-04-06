@@ -13,7 +13,9 @@ def get_image_description(image):
     "image": image,
     "prompt": """Describe this piece of clothes with as many details as possible. 
                 Your goal is to make it possible for a human to imagine the clothes 
-                in the picture as faithfully as possible without seeing it."""
+                in the picture as faithfully as possible without seeing it. Please do 
+                not mention anything that has to do with the background or anything else
+                that isn't the piece of clothes in the picture. Go straight to the point."""
     }
     
     output = replicate.run(
