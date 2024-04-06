@@ -3,9 +3,9 @@ import os
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
-from werkzeug.utils import secure_filename
 
-from src.utils import allowed_file, image_to_buffer, get_image_description
+from src.utils import allowed_file, save_file, file_to_buffer,\
+    get_image_embeddings, save_image_to_db
 
 
 UPLOAD_FOLDER = 'images'
@@ -47,18 +47,11 @@ def upload_file():
     if not allowed_file(file.filename):
         return jsonify({'message': 'File extension not allowed'}), 400
     
-    filename = secure_filename(file.filename)
-    # In case there is a duplicate
-    name, extension = os.path.splitext(filename)
-    counter = 1
-    while os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
-        filename = f"{name}_{counter}{extension}"
-        counter += 1
+    file_path = save_file(file, app)
 
-    file_buffered = image_to_buffer(file)
-    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-    description = get_image_description(file_buffered)
-    print(description)
+    file_buffered = file_to_buffer(file)
+    image_embeddings = get_image_embeddings(file_buffered)
+    save_image_to_db()
     
     return jsonify({'message': 'File uploaded successfully'}), 200
 
