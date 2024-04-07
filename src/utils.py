@@ -60,10 +60,11 @@ def get_text_embeddings(text):
 
 def get_clothing_type(image):
     output = replicate.run(
-        "yorickvp/llava-13b:b5f6212d032508382d61ff00469ddda3e32fd8a0e75dc39d8a4191bb742157fb",
+        "yorickvp/llava-v1.6-34b:41ecfbfb261e6c1adf3ad896c9066ca98346996d7c4045c5bc944a79d430f174",
         input={
             "image": image,
-            "prompt": f"What is this piece of clothing? Please select one only: {CLOTHES_TYPES}. \
+            "prompt": f"What is this piece of clothing? Please select ONLY ONE CHOICE: {CLOTHES_TYPES}. \
+                If you are in doubt, just pick ONE OF THEM.\
                 \nIf you think it's outerwear but it doesn't have a zipper or buttons, it should \
                 be considered as: 'tops'"
         }
