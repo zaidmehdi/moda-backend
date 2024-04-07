@@ -2,7 +2,11 @@ import os
 
 import replicate
 from io import BytesIO
+from pymongo import MongoClient
 from werkzeug.utils import secure_filename
+
+
+CLOTHES_TYPES = ["tops", "bottoms", "shoes", "outerwear"]
 
 
 def allowed_file(filename):
@@ -21,7 +25,7 @@ def save_file(file, app):
         counter += 1
 
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    file.save()
+    file.save(file_path)
 
     return file_path
 
@@ -54,5 +58,37 @@ def get_text_embeddings(text):
 
     return output
 
-def save_image_to_db():
-    return 
+def get_clothing_type(image):
+    output = replicate.run(
+        "yorickvp/llava-13b:b5f6212d032508382d61ff00469ddda3e32fd8a0e75dc39d8a4191bb742157fb",
+        input={
+            "image": image,
+            "prompt": f"What is this piece of clothing? Please select one only: {CLOTHES_TYPES}"
+        }
+    )
+
+    return "".join(output).lower()
+
+def get_user_closet_length(query, collection):
+    user_doc = collection.find_one(query)
+    if user_doc:
+        closet = user_doc.get('closet', {})
+        return len(closet)
+    
+    raise ValueError("User not found")
+
+def save_data_to_db(data:dict, db):
+    collection = db.users
+    query = {'username': data["username"]}
+    new_item = {
+        'path': data["image_path"],
+        'type': data["type"],
+        'embedding': data["image_embeddings"]
+    }
+
+    closet_length = get_user_closet_length(query, collection)
+    new_item_key = f"item{closet_length + 1}"
+    collection.update_one(
+        {"username": data["username"]},
+        {"$set": {f"closet.{new_item_key}": new_item}}
+    )

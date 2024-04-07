@@ -5,7 +5,7 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 
 from src.utils import allowed_file, save_file, file_to_buffer,\
-    get_image_embeddings, save_image_to_db
+    get_image_embeddings, get_clothing_type, save_data_to_db
 
 
 UPLOAD_FOLDER = 'images'
@@ -46,12 +46,21 @@ def upload_file():
         return jsonify({'message': 'No selected file'}), 400
     if not allowed_file(file.filename):
         return jsonify({'message': 'File extension not allowed'}), 400
+    if 'username' not in request.form:
+        return jsonify({'message': 'No username provided'}), 400
     
     file_path = save_file(file, app)
 
-    file_buffered = file_to_buffer(file)
-    image_embeddings = get_image_embeddings(file_buffered)
-    save_image_to_db()
+    image = open(file_path, "rb")
+    clothing_type = get_clothing_type(image)
+    image_embeddings = get_image_embeddings(image)
+    data = {
+        "username": request.form["username"],
+        "image_path": file_path,
+        "type": clothing_type,
+        "image_embeddings": image_embeddings
+    }
+    save_data_to_db(data, db)
     
     return jsonify({'message': 'File uploaded successfully'}), 200
 
