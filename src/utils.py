@@ -131,10 +131,7 @@ def get_gender_by_username(username:str, db):
 
 def prompt_gpt(client, gender, context, temperature):
     """given some context, returns a dictionary describing what you should wear in your outfit."""
-    outfit = {"tops": "",
-              "bottoms": "",
-              "shoes": "",
-              "outerwear": ""}
+    outfit = {}
 
     history = [{"role": "system", "content": "You are a fashion expert who is dedicated to picking outfits for a user. \
                 You will receive context from the user that will help you choose an outfit. \
@@ -156,7 +153,7 @@ def prompt_gpt(client, gender, context, temperature):
     )
     content = response.choices[0].message.content
     history.append({"role": "assistant", "content": content})
-    outfit["tops"] = content[13:]
+    outfit["tops"] = content[15:]
 
 
     prompt = {"role": "user", "content": f"Given the previous answers, generate a description for what \
@@ -169,7 +166,7 @@ def prompt_gpt(client, gender, context, temperature):
     )
     content = response.choices[0].message.content
     history.append({"role": "assistant", "content": content})
-    outfit["bottoms"] = content[13:]
+    outfit["bottoms"] = content[15:]
 
 
     prompt = {"role": "user", "content": f"Given the previous answers, generate a description for what \
@@ -182,11 +179,12 @@ def prompt_gpt(client, gender, context, temperature):
     )
     content = response.choices[0].message.content
     history.append({"role": "assistant", "content": content})
-    outfit["shoes"] = content[13:]
+    outfit["shoes"] = content[15:]
 
 
-    prompt = {"role": "user", "content": f"Given the previous answers, generate a description for what \
-              I should wear as outwear (remember to write 'none' if i shouldn't wear any):"}
+    prompt = {"role": "user", "content": f"Given the previous answers, and given the temperature, \
+              generate a description for what I should wear as outwear. If the temperature I gave you \
+              ({temperature}) is above 25, write none."}
     
     history.append(prompt)
     response = client.chat.completions.create(
@@ -195,10 +193,9 @@ def prompt_gpt(client, gender, context, temperature):
     )
     content = response.choices[0].message.content
     history.append({"role": "assistant", "content": content})
-    if content.lower() == "none":
-        outfit["outerwear"] = None
-    else:
-        outfit["outerwear"] = content[13:]
+    if not "none" in content.lower():
+        outfit["outerwear"] = content[15:]
+        
 
     return outfit
 
