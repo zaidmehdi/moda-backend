@@ -1,6 +1,8 @@
 import requests
 import os
 
+import faiss
+import numpy as np
 import replicate
 from dotenv import load_dotenv
 from geopy.geocoders import Nominatim
@@ -192,5 +194,52 @@ def prompt_gpt(client, gender, context, temperature):
         outfit["outerwear"] = None
     else:
         outfit["outerwear"] = content[13:]
+
+    return outfit
+
+
+def get_items_by_type(db, username, item_type:str):
+    collection = db.users
+    document = collection.find_one({"_id": username})
+    if not document:
+        return None
+    closet = document.get("closet", {})
+    items = [closet[key] for key in closet if closet[key].get("type") == item_type]
+
+    return items
+
+def get_items_embeddings(items):
+    embeddings = []
+    for item in items:
+        embedding = item.get("embedding")
+        embeddings.append(embedding)
+
+    return embeddings
+
+def get_most_similar_embedding(embedding, embeddings_list):
+    embedding = np.asarray(embedding, dtype=np.float32)
+    embeddings_list = np.asarray(embeddings_list, dtype=np.float32)
+
+    d = embedding.shape[0]
+    index = faiss.IndexFlatL2(d)
+    index.add(embeddings_list)
+    _, most_similar_index = index.search(np.expand_dims(embedding, axis=0), 1)
+
+    return most_similar_index[0][0]
+
+def get_outfit(outfit_description, username, db):
+    outfit = []
+
+    for item_type, description in outfit_description.items():
+        description_embedding = get_text_embeddings(description)
+
+        items = get_items_by_type(db, username, item_type)
+        items_embeddings= get_items_embeddings(items)
+        outfit_item_index = get_most_similar_embedding(description_embedding, items_embeddings)
+        outfit_item_key = list(items.keys())[outfit_item_index]
+        if item_type == "outerwear":
+            outfit.insert(0, outfit_item_index)
+        else:
+            outfit.append(outfit_item_key)
 
     return outfit

@@ -7,7 +7,7 @@ from pymongo import MongoClient
 
 from src.utils import allowed_file, save_file, get_image_embeddings, \
     get_clothing_type, save_data_to_db, fetch_weather, get_gender_by_username, \
-    prompt_gpt
+    prompt_gpt, get_outfit
 
 
 UPLOAD_FOLDER = 'images'
@@ -80,18 +80,7 @@ def recommend_outfit():
     gender = get_gender_by_username(username, db)
 
     outfit_description = prompt_gpt(myclient, gender, context, temperature)
-    # -> fetch weather
-    # -> prompt_gpt with context + weather
-        # get a dict of predictions [tops:d1, bottoms:d2, shoes:d3, outerwear:none]
-    # for desc in desc:
-        # if desc.lower() == none:
-            # next
-        # get_embedding
-        # open clothes embeddings of that type
-        # find closest
-        # append to outfit.
-
-    outfit = []
+    outfit = get_outfit(outfit_description, username, db)
 
     return outfit
 
