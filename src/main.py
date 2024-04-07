@@ -78,7 +78,7 @@ def recommend_outfit():
     """Takes as input a username, a context, latitude, and longitude"""
     username = request.json.get('username')
     context = request.json.get('context')
-    temperature = fetch_weather(request.json.get("latitude"), request.json.get("longitude"))
+    temperature = fetch_weather(float(request.json.get("latitude")), float(request.json.get("longitude")))
     gender = get_gender_by_username(username, db)
 
     outfit_description = prompt_gpt(myclient, gender, context, temperature)

@@ -66,7 +66,8 @@ def get_clothing_type(image):
             "prompt": f"What is this piece of clothing? Please select ONLY ONE CHOICE: {CLOTHES_TYPES}. \
                 If you are in doubt, just pick ONE OF THEM.\
                 \nIf you think it's outerwear but it doesn't have a zipper or buttons, it should \
-                be considered as: 'tops'"
+                be considered as: 'tops'. Keep in mind that you shouldn't write anything except one \
+                of the 4 choices, and no other text."
         }
     )
 
@@ -144,8 +145,9 @@ def prompt_gpt(client, gender, context, temperature):
                 go well toghether in terms of style, color and other factors. the answer should be in this format: \
                 'description': "}]
     
-    prompt = {"role": "user", "content": f"-Context: {context},\n-Gender: {gender}\n-Temperature: {temperature} \
-              degrees celsius.\nGiven this context, generate a description for what I should wear as a top:"}
+    prompt = {"role": "user", "content": f"-Context: `{context}`,\n-Gender: `{gender}`\
+              \n-Temperature: `{temperature}` degrees celsius.\
+              \nGiven this context, generate a description for what I should wear as a top:"}
     
     history.append(prompt)
     response = client.chat.completions.create(
@@ -239,10 +241,10 @@ def get_outfit(outfit_description, username, db):
         items = get_items_by_type(db, username, item_type)
         items_embeddings= get_items_embeddings(items)
         outfit_item_index = get_most_similar_embedding(description_embedding, items_embeddings)
-        outfit_item_key = list(items.keys())[outfit_item_index]
+        outfit_item_path = items[outfit_item_index]["path"]
         if item_type == "outerwear":
-            outfit.insert(0, outfit_item_index)
+            outfit.insert(0, outfit_item_path)
         else:
-            outfit.append(outfit_item_key)
+            outfit.append(outfit_item_path)
 
     return outfit
