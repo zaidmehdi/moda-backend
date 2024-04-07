@@ -1,12 +1,16 @@
+import requests
 import os
 
 import replicate
-from io import BytesIO
-from pymongo import MongoClient
+from dotenv import load_dotenv
+from geopy.geocoders import Nominatim
 from werkzeug.utils import secure_filename
 
 
 CLOTHES_TYPES = ["tops", "bottoms", "shoes", "outerwear"]
+load_dotenv()
+WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 
 def allowed_file(filename):
@@ -30,11 +34,6 @@ def save_file(file, app):
     return file_path
 
 
-
-def file_to_buffer(file):
-    file_binary_content = file.read()
-    file_buffer = BytesIO(file_binary_content)
-    return file_buffer
 
 def get_image_embeddings(image):
     output = replicate.run(
@@ -92,3 +91,26 @@ def save_data_to_db(data:dict, db):
         {"username": data["username"]},
         {"$set": {f"closet.{new_item_key}": new_item}}
     )
+
+
+
+def get_city_from_coord(latitude, longitude):
+    geolocator = Nominatim(user_agent="city_name_app")
+    location = geolocator.reverse((latitude, longitude), exactly_one=True)
+    address = location.address if location else None
+    if address:
+        city = address.split(",")[-3]
+        return city.strip()
+
+    return None
+
+def fetch_weather(latitude, longitude):
+    city_name = get_city_from_coord(latitude, longitude)
+    if not city_name:
+        return None
+    
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city_name}&appid={WEATHER_API_KEY}&units=metric"
+    response = requests.get(url)
+    data = response.json()
+
+    return data["main"]["feels_like"]

@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
 
-from src.utils import allowed_file, save_file, file_to_buffer,\
-    get_image_embeddings, get_clothing_type, save_data_to_db
+from src.utils import allowed_file, save_file, get_image_embeddings, \
+    get_clothing_type, save_data_to_db
 
 
 UPLOAD_FOLDER = 'images'
@@ -67,6 +67,18 @@ def upload_file():
 
 @app.route("/recommend", methods=["POST"])
 def recommend_outfit():
+    """Takes as input a username and a context"""
+    # -> fetch weather
+    # -> prompt_gpt with context + weather
+        # get a dict of predictions [tops:d1, bottoms:d2, shoes:d3, outerwear:none]
+    # for desc in desc:
+        # if desc.lower() == none:
+            # next
+        # get_embedding
+        # open clothes embeddings of that type
+        # find closest
+        # append to outfit.
+
     outfit = []
 
     return outfit
