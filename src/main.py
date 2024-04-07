@@ -19,7 +19,7 @@ load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 os.environ["REPLICATE_API_TOKEN"] = os.getenv("REPLICATE_API_TOKEN")
 
-MONGO_URI = "mongodb://localhost:27017/moda"
+MONGO_URI = "mongodb+srv://moda:moda@clustermoda.jwk8h2c.mongodb.net/?retryWrites=true&w=majority&appName=ClusterModa"
 client = MongoClient(MONGO_URI)
 db = client.moda
 
@@ -84,7 +84,7 @@ def recommend_outfit():
     outfit_description = prompt_gpt(myclient, gender, context, temperature)
     outfit = get_outfit(outfit_description, username, db)
 
-    return outfit
+    return jsonify({'outfit': outfit, 'message': "Recommendation Successful"}), 200
 
 
 if __name__ == "__main__":
