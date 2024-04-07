@@ -2,3 +2,6 @@
 images/
 __pycache__/
 test.ipynb
+Dockerfile
+image.tar
+oracle
