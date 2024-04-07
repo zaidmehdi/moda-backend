@@ -10,7 +10,6 @@ from werkzeug.utils import secure_filename
 CLOTHES_TYPES = ["tops", "bottoms", "shoes", "outerwear"]
 load_dotenv()
 WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 
 def allowed_file(filename):
@@ -114,3 +113,84 @@ def fetch_weather(latitude, longitude):
     data = response.json()
 
     return data["main"]["feels_like"]
+
+def get_gender_by_username(username:str, db):
+    collection = db.users
+    document = collection.find_one({"_id": username})
+    if not document:
+        return None
+    
+    return document.get("gender")
+
+
+def prompt_gpt(client, gender, context, temperature):
+    """given some context, returns a dictionary describing what you should wear in your outfit."""
+    outfit = {"tops": "",
+              "bottoms": "",
+              "shoes": "",
+              "outerwear": ""}
+
+    history = [{"role": "system", "content": "You are a fashion expert who is dedicated to picking outfits for a user. \
+                You will receive context from the user that will help you choose an outfit. \
+                An outfit contains four items: top, bottom, shoes, outwear. \
+                The outwear is optional and depends on the weather, if it is not needed, \
+                only write `none` and nothing else. You will need to provide a description for each item one by one.\
+                I want the description to include: color, style, fit, and material. Make sure the different items \
+                go well toghether in terms of style, color and other factors. the answer should be in this format: \
+                'description': "}]
+    
+    prompt = {"role": "user", "content": f"-Context: {context},\n-Gender: {gender}\n-Temperature: {temperature} \
+              degrees celsius.\nGiven this context, generate a description for what I should wear as a top:"}
+    
+    history.append(prompt)
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages= history
+    )
+    content = response.choices[0].message.content
+    history.append({"role": "assistant", "content": content})
+    outfit["tops"] = content[13:]
+
+
+    prompt = {"role": "user", "content": f"Given the previous answers, generate a description for what \
+              I should wear as a bottom:"}
+    
+    history.append(prompt)
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages= history
+    )
+    content = response.choices[0].message.content
+    history.append({"role": "assistant", "content": content})
+    outfit["bottoms"] = content[13:]
+
+
+    prompt = {"role": "user", "content": f"Given the previous answers, generate a description for what \
+              I should wear as shoes:"}
+    
+    history.append(prompt)
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages= history
+    )
+    content = response.choices[0].message.content
+    history.append({"role": "assistant", "content": content})
+    outfit["shoes"] = content[13:]
+
+
+    prompt = {"role": "user", "content": f"Given the previous answers, generate a description for what \
+              I should wear as outwear (remember to write 'none' if i shouldn't wear any):"}
+    
+    history.append(prompt)
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages= history
+    )
+    content = response.choices[0].message.content
+    history.append({"role": "assistant", "content": content})
+    if content.lower() == "none":
+        outfit["outerwear"] = None
+    else:
+        outfit["outerwear"] = content[13:]
+
+    return outfit
