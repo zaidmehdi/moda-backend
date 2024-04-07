@@ -63,7 +63,9 @@ def get_clothing_type(image):
         "yorickvp/llava-13b:b5f6212d032508382d61ff00469ddda3e32fd8a0e75dc39d8a4191bb742157fb",
         input={
             "image": image,
-            "prompt": f"What is this piece of clothing? Please select one only: {CLOTHES_TYPES}"
+            "prompt": f"What is this piece of clothing? Please select one only: {CLOTHES_TYPES}. \
+                \nIf you think it's outerwear but it doesn't have a zipper or buttons, it should \
+                be considered as: 'tops'"
         }
     )
 
