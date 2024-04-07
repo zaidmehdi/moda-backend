@@ -79,7 +79,7 @@ def get_user_closet_length(query, collection):
 
 def save_data_to_db(data:dict, db):
     collection = db.users
-    query = {'username': data["username"]}
+    query = {'_id': data["username"]}
     new_item = {
         'path': data["image_path"],
         'type': data["type"],
@@ -89,7 +89,7 @@ def save_data_to_db(data:dict, db):
     closet_length = get_user_closet_length(query, collection)
     new_item_key = f"item{closet_length + 1}"
     collection.update_one(
-        {"username": data["username"]},
+        {"_id": data["username"]},
         {"$set": {f"closet.{new_item_key}": new_item}}
     )
 

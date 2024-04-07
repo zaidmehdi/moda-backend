@@ -31,13 +31,15 @@ myclient = OpenAI(api_key=OPENAI_API_KEY)
 def register_user():
     collection = db.users
     username = request.json.get('username')
+    gender = request.json.get("gender")
 
-    existing_user = collection.find_one({'username': username})
+    existing_user = collection.find_one({'_id': username})
     if existing_user:
         return jsonify({'message': 'Username already exists'}), 400
     
     new_user = {'_id': username, 
-                "clothes": {}}
+                'gender': gender,
+                "closet": {}}
     result = collection.insert_one(new_user)
     
     return jsonify({'message': 'User registered successfully', 'user_id': str(result.inserted_id)}), 201
