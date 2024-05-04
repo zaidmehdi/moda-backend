@@ -2,6 +2,8 @@ import os
 
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
 from openai import OpenAI
 from pymongo import MongoClient
 
@@ -17,13 +19,19 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+openai_client = OpenAI(api_key=OPENAI_API_KEY)
+
 os.environ["REPLICATE_API_TOKEN"] = os.getenv("REPLICATE_API_TOKEN")
 
-MONGO_URI = "mongodb+srv://moda:moda@clustermoda.jwk8h2c.mongodb.net/?retryWrites=true&w=majority&appName=ClusterModa"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+user_db = SQLAlchemy()
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+MONGO_URI = os.getenv("MONGO_URI")
 client = MongoClient(MONGO_URI)
 db = client.moda
-
-myclient = OpenAI(api_key=OPENAI_API_KEY)
 
 
 
@@ -81,7 +89,7 @@ def recommend_outfit():
     temperature = fetch_weather(float(request.json.get("latitude")), float(request.json.get("longitude")))
     gender = get_gender_by_username(username, db)
 
-    outfit_description = prompt_gpt(myclient, gender, context, temperature)
+    outfit_description = prompt_gpt(openai_client, gender, context, temperature)
     outfit = get_outfit(outfit_description, username, db)
 
     return jsonify({'outfit': outfit, 'message': "Recommendation Successful"}), 200
