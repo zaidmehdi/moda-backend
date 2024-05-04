@@ -10,6 +10,7 @@ from pymongo import MongoClient
 from src.utils import allowed_file, save_file, get_image_embeddings, \
     get_clothing_type, save_data_to_db, fetch_weather, get_gender_by_username, \
     prompt_gpt, get_outfit
+from src.user_authentication import Users
 
 
 UPLOAD_FOLDER = 'images'
@@ -25,18 +26,28 @@ os.environ["REPLICATE_API_TOKEN"] = os.getenv("REPLICATE_API_TOKEN")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+
 user_db = SQLAlchemy()
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+user_db.init_app(app)
+with app.app_context():
+    user_db.create_all()
 
 MONGO_URI = os.getenv("MONGO_URI")
 client = MongoClient(MONGO_URI)
 db = client.moda
 
 
+@login_manager.user_loader
+def loader_user(user_id):
+    return Users.query.get(user_id)
 
-@app.route("/register", methods=['POST'])
-def register_user():
+
+@app.route('/register', methods=["POST"])
+def register():
+
     collection = db.users
     username = request.json.get('username')
     gender = request.json.get("gender")
@@ -48,9 +59,18 @@ def register_user():
     new_user = {'_id': username, 
                 'gender': gender,
                 "closet": {}}
-    result = collection.insert_one(new_user)
-    
-    return jsonify({'message': 'User registered successfully', 'user_id': str(result.inserted_id)}), 201
+    collection.insert_one(new_user)
+
+    user = Users(username=username,
+                    password=request.form.get("password"))
+    user_db.session.add(user)
+    user_db.session.commit()
+
+    return jsonify({
+        "success": True,
+        "message": "User successfully registered",
+        "user_id": username
+        }), 201
 
 
 @app.route('/upload', methods=['POST'])
