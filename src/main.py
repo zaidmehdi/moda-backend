@@ -61,7 +61,7 @@ def register():
     collection.insert_one(new_user)
 
     user = Users(username=username,
-                    password=request.form.get("password"))
+                    password=request.json.get("password"))
     user_db.session.add(user)
     user_db.session.commit()
 
