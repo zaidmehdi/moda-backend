@@ -54,16 +54,16 @@ def register():
     existing_user = collection.find_one({'_id': username})
     if existing_user:
         return jsonify({'message': 'Username already exists'}), 400
-    
-    new_user = {'_id': username, 
-                'gender': gender,
-                "closet": {}}
-    collection.insert_one(new_user)
 
     user = Users(username=username,
                     password=request.json.get("password"))
     user_db.session.add(user)
     user_db.session.commit()
+
+    new_user = {'_id': username, 
+                'gender': gender,
+                "closet": {}}
+    collection.insert_one(new_user)
 
     return jsonify({
         "success": True,
