@@ -2,7 +2,7 @@ import os
 
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
-from flask_login import LoginManager
+from flask_login import LoginManager, login_user
 from openai import OpenAI
 from pymongo import MongoClient
 
@@ -70,6 +70,28 @@ def register():
         "message": "User successfully registered",
         "user_id": username
         }), 201
+
+
+@app.route("/login", methods=["POST"])
+def login():
+
+    username = request.form.get("username")
+    password = request.form.get("password")
+
+    user = Users.query.filter_by(username=username).first()
+
+    if user and user.password == password:
+        login_user(user)
+        return jsonify({
+            "success": True,
+            "message": "User successfully logged in"
+            }), 200
+    
+    return jsonify({
+        "success": False,
+        "message": "Invalid username or password"
+        }), 401
+
 
 
 @app.route('/upload', methods=['POST'])
