@@ -1,8 +1,8 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, request, jsonify
-from flask_login import LoginManager, login_user
+from flask import Flask, request, jsonify, session
+from flask_login import LoginManager, login_user, logout_user
 from openai import OpenAI
 from pymongo import MongoClient
 
@@ -92,6 +92,15 @@ def login():
         "message": "Invalid username or password"
         }), 401
 
+
+@app.route("/logout")
+def logout():
+    logout_user()
+
+    return jsonify({
+        "success": True,
+        "message": "Successfully logged out (or already logged out)"
+        }), 200
 
 
 @app.route('/upload', methods=['POST'])
