@@ -2,15 +2,14 @@ import os
 
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from openai import OpenAI
 from pymongo import MongoClient
 
-from src.utils import allowed_file, save_file, get_image_embeddings, \
+from utils import allowed_file, save_file, get_image_embeddings, \
     get_clothing_type, save_data_to_db, fetch_weather, get_gender_by_username, \
     prompt_gpt, get_outfit
-from src.user_authentication import Users
+from user_authentication import Users, user_db
 
 
 UPLOAD_FOLDER = 'images'
@@ -24,10 +23,9 @@ openai_client = OpenAI(api_key=OPENAI_API_KEY)
 
 os.environ["REPLICATE_API_TOKEN"] = os.getenv("REPLICATE_API_TOKEN")
 
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
-app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLITE_URI")
+app.config["SECRET_KEY"] = os.getenv("SQLITE_KEY")
 
-user_db = SQLAlchemy()
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -47,6 +45,7 @@ def loader_user(user_id):
 
 @app.route('/register', methods=["POST"])
 def register():
+    """When user registers, create account in the sqlite db, and create an entry in mongodb too"""
 
     collection = db.users
     username = request.json.get('username')
