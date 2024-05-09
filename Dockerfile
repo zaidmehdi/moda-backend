@@ -1,5 +1,9 @@
 FROM python:3.11.8-slim
 
+RUN apt-get update && \
+    apt-get install -y gcc python3-dev && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY requirements.txt .
@@ -12,7 +16,6 @@ COPY images /app/images
 COPY .env /app/.env
 
 
-EXPOSE 8080
+EXPOSE 80
 
-ENTRYPOINT ["python"]
-CMD ["src/main.py"]
+CMD ["python", "src/main.py"]
