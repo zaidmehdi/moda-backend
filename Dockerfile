@@ -14,4 +14,5 @@ COPY .env /app/.env
 
 EXPOSE 8080
 
-CMD ["python", "src/main.py"]
+ENTRYPOINT ["python"]
+CMD ["src/main.py"]
