@@ -1,9 +1,56 @@
 from utils.embeddings_utils import get_text_embeddings, get_items_by_type, get_items_embeddings, get_most_similar_embedding
 
 
-def prompt_gpt(client, gender, context, temperature):
+def prompt_gpt(client, history, prompt):
+    history.append(prompt)
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages= history
+    )
+    content = response.choices[0].message.content
+    history.append({"role": "assistant", "content": content})
+
+    return content[15:], history
+
+
+def get_tops(client, history, gender, context, temperature):
+    prompt = {"role": "user", "content": f"-Context: `{context}`,\n-Gender: `{gender}`\
+              \n-Temperature: `{temperature}` degrees celsius.\
+              \nGiven this context, generate a description for what I should wear as a top:"}
+    
+    return prompt_gpt(client, history, prompt)
+
+
+def get_bottoms(client, history):
+    prompt = {"role": "user", "content": f"Given the previous answers, generate a description for what \
+              I should wear as a bottom:"}
+    
+    return prompt_gpt(client, history, prompt)
+
+
+def get_shoes(client, history):
+    prompt = {"role": "user", "content": f"Given the previous answers, generate a description for what \
+              I should wear as shoes:"}
+    
+    return prompt_gpt(client, history, prompt)
+
+
+def get_outerwear(client, history, temperature):
+    prompt = {"role": "user", "content": f"Given the previous answers, and given the temperature, \
+              generate a description for what I should wear as outwear. If the temperature I gave you \
+              ({temperature}) is above 25, write none."}
+    
+    content, history = prompt_gpt(client, history, prompt)
+    if "none" in content.lower():
+        return None
+    
+    return content[15:]
+
+
+def get_outfit_description(client, gender, context, temperature):
     """given some context, returns a dictionary describing what you should wear in your outfit."""
-    outfit = {}
+
+    outfit_description = {}
 
     history = [{"role": "system", "content": "You are a fashion expert who is dedicated to picking outfits for a user. \
                 You will receive context from the user that will help you choose an outfit. \
@@ -14,62 +61,15 @@ def prompt_gpt(client, gender, context, temperature):
                 go well toghether in terms of style, color and other factors. the answer should be in this format: \
                 'description': "}]
     
-    prompt = {"role": "user", "content": f"-Context: `{context}`,\n-Gender: `{gender}`\
-              \n-Temperature: `{temperature}` degrees celsius.\
-              \nGiven this context, generate a description for what I should wear as a top:"}
-    
-    history.append(prompt)
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages= history
-    )
-    content = response.choices[0].message.content
-    history.append({"role": "assistant", "content": content})
-    outfit["tops"] = content[15:]
+    outfit_description["tops"], history = get_tops(client, history, gender, context, temperature)
+    outfit_description["bottoms"], history = get_bottoms(client, history)
+    outfit_description["shoes"] = get_shoes(client, history)
 
+    outerwear = get_outerwear(client, history, temperature)
+    if outerwear:
+        outfit_description["outerwear"] = outerwear
 
-    prompt = {"role": "user", "content": f"Given the previous answers, generate a description for what \
-              I should wear as a bottom:"}
-    
-    history.append(prompt)
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages= history
-    )
-    content = response.choices[0].message.content
-    history.append({"role": "assistant", "content": content})
-    outfit["bottoms"] = content[15:]
-
-
-    prompt = {"role": "user", "content": f"Given the previous answers, generate a description for what \
-              I should wear as shoes:"}
-    
-    history.append(prompt)
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages= history
-    )
-    content = response.choices[0].message.content
-    history.append({"role": "assistant", "content": content})
-    outfit["shoes"] = content[15:]
-
-
-    prompt = {"role": "user", "content": f"Given the previous answers, and given the temperature, \
-              generate a description for what I should wear as outwear. If the temperature I gave you \
-              ({temperature}) is above 25, write none."}
-    
-    history.append(prompt)
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages= history
-    )
-    content = response.choices[0].message.content
-    history.append({"role": "assistant", "content": content})
-    if not "none" in content.lower():
-        outfit["outerwear"] = content[15:]
-        
-
-    return outfit
+    return outfit_description
 
 
 def get_outfit(outfit_description, username, db):
