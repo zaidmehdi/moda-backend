@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify
 from flask_login import LoginManager, login_user, logout_user
 from openai import OpenAI
 from pymongo import MongoClient
