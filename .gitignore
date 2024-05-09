@@ -2,7 +2,6 @@
 images/
 __pycache__/
 test.ipynb
-Dockerfile
 image.tar
 oracle
 images_new/
