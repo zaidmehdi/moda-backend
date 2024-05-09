@@ -1,15 +1,16 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify
 from flask_login import LoginManager, login_user, logout_user
 from openai import OpenAI
 from pymongo import MongoClient
 
-from utils import allowed_file, save_file, get_image_embeddings, \
-    get_clothing_type, save_data_to_db, fetch_weather, get_gender_by_username, \
-    prompt_gpt, get_outfit
 from user_authentication import Users, user_db
+from utils.context_utils import fetch_weather, get_gender_by_username
+from utils.database_utils import allowed_file, save_file, save_data_to_db
+from utils.embeddings_utils import get_image_embeddings,  get_clothing_type
+from utils.outfit_utils import get_outfit_description, get_outfit
 
 
 UPLOAD_FOLDER = 'images'
@@ -139,7 +140,7 @@ def recommend_outfit():
     temperature = fetch_weather(float(request.json.get("latitude")), float(request.json.get("longitude")))
     gender = get_gender_by_username(username, db)
 
-    outfit_description = prompt_gpt(openai_client, gender, context, temperature)
+    outfit_description = get_outfit_description(openai_client, gender, context, temperature)
     outfit = get_outfit(outfit_description, username, db)
 
     return jsonify({'outfit': outfit, 'message': "Recommendation Successful"}), 200
