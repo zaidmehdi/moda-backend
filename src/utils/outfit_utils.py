@@ -63,7 +63,7 @@ def get_outfit_description(client, gender, context, temperature):
     
     outfit_description["tops"], history = get_tops(client, history, gender, context, temperature)
     outfit_description["bottoms"], history = get_bottoms(client, history)
-    outfit_description["shoes"] = get_shoes(client, history)
+    outfit_description["shoes"], history = get_shoes(client, history)
 
     outerwear = get_outerwear(client, history, temperature)
     if outerwear:
