@@ -46,7 +46,8 @@ def loader_user(user_id):
 
 @app.route('/register', methods=["POST"])
 def register():
-    """When user registers, create account in the sqlite db, and create an entry in mongodb too"""
+    """When user registers, create account in the sqlite db with password, 
+    and create an entry in mongodb to store the closet"""
 
     collection = db.users
     username = request.json.get('username')
@@ -54,7 +55,8 @@ def register():
 
     existing_user = collection.find_one({'_id': username})
     if existing_user:
-        return jsonify({'message': 'Username already exists'}), 400
+        return jsonify({"success": False,
+                        'message': 'Username already exists'}), 400
 
     user = Users(username=username,
                     password=request.json.get("password"))
@@ -75,6 +77,7 @@ def register():
 
 @app.route("/login", methods=["POST"])
 def login():
+    """allow the user to login"""
 
     username = request.form.get("username")
     password = request.form.get("password")
@@ -96,6 +99,8 @@ def login():
 
 @app.route("/logout")
 def logout():
+    """allow the user to logout"""
+
     logout_user()
 
     return jsonify({
@@ -106,15 +111,21 @@ def logout():
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    """allow the user to upload pictures of their clothes"""
+
     if 'file' not in request.files:
-        return jsonify({'message': 'No file part'}), 400
+        return jsonify({'success': False,
+                        'message': 'No file part'}), 400
     file = request.files['file']
     if file.filename == '':
-        return jsonify({'message': 'No selected file'}), 400
+        return jsonify({'success': False,
+                        'message': 'No selected file'}), 400
     if not allowed_file(file.filename):
-        return jsonify({'message': 'File extension not allowed'}), 400
+        return jsonify({'success': False,
+                        'message': 'File extension not allowed'}), 400
     if 'username' not in request.form:
-        return jsonify({'message': 'No username provided'}), 400
+        return jsonify({'success': False,
+                        'message': 'No username provided'}), 400
     
     file_path = save_file(file, app)
 
@@ -129,12 +140,14 @@ def upload_file():
     }
     save_data_to_db(data, db)
     
-    return jsonify({'message': 'File uploaded successfully'}), 200
+    return jsonify({'success': True,
+                    'message': 'File uploaded successfully'}), 200
 
 
 @app.route("/recommend", methods=["POST"])
 def recommend_outfit():
     """Takes as input a username, a context, latitude, and longitude"""
+
     username = request.json.get('username')
     context = request.json.get('context')
     temperature = fetch_weather(float(request.json.get("latitude")), float(request.json.get("longitude")))
