@@ -58,7 +58,7 @@ def register():
     existing_user = collection.find_one({'_id': username})
     if existing_user:
         return jsonify({"success": False,
-                        'message': 'Username already exists'}), 400
+                        'message': 'Username already exists'}), 409
 
     user = Users(username=username,
                     password=request.json.get("password"))
@@ -143,7 +143,7 @@ def upload_file():
     save_data_to_db(data, db)
     
     return jsonify({'success': True,
-                    'message': 'File uploaded successfully'}), 200
+                    'message': 'File uploaded successfully'}), 201
 
 
 @app.route("/recommend", methods=["POST"])
