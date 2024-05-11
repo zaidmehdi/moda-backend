@@ -1,10 +1,11 @@
+import os
 import random
 import string
 import sys
 import unittest
 
-sys.path.append("/home/mehdi/Documents/TVB/moda-backend/src")
-from main import app, db
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from src.main import app, db
 
 
 
