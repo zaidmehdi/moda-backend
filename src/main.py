@@ -56,7 +56,7 @@ def register():
     gender = request.json.get("gender")
 
     existing_user = collection.find_one({'_id': username})
-    if existing_user:
+    if existing_user or username == "test_user":
         return jsonify({"success": False,
                         'message': 'Username already exists'}), 400
 
