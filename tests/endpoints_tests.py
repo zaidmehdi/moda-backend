@@ -30,10 +30,10 @@ class TestRegisterEndpoint(unittest.TestCase):
         self.collection.delete_one({"_id": username})
 
 
-    def test_register_success(self):
-        """Test registration with valid data"""
-        
-        username = self._generate_random_string()
+    def _send_post_request(self, username):
+        """Method to send a post request to the /register endpoint
+        and delete the user's entry from mongodb"""
+
         password = self._generate_random_string()
 
         data = {
@@ -44,11 +44,30 @@ class TestRegisterEndpoint(unittest.TestCase):
 
         response = self.app.post("/register", json=data)
         self._delete_from_mongodb(username)
+
+        return response
+
+    def test_register_success(self):
+        """Test registration (/register) with valid data"""
+        
+        username = self._generate_random_string()
+        response = self._send_post_request(username)
         
         self.assertEqual(response.status_code, 201)
         self.assertTrue(response.json["success"])
         self.assertEqual(response.json["message"], "User successfully registered")
         self.assertEqual(response.json["user_id"], username)
+
+    
+    def test_register_existing_user(self):
+        """Test registration (/register) with a user that already exists"""
+
+        username = "test_user"
+        response = self._send_post_request(username)
+
+        self.assertEqual(response.status_code, 409)
+        self.assertFalse(response.json["success"])
+        self.assertEqual(response.json["message"], "Username already exists")
 
 
 
