@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.append("/home/mehdi/Documents/TVB/moda-backend/src")
+sys.path.append(os.path.dirname(__file__))
 
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
