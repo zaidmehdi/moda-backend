@@ -2,12 +2,10 @@ import os
 import sys
 sys.path.append(os.path.dirname(__file__))
 
-from dotenv import load_dotenv
-from flask import Flask, request, jsonify
-from flask_login import LoginManager, login_user, logout_user
-from openai import OpenAI
-from pymongo import MongoClient
+from flask import current_app, request, jsonify
+from flask_login import login_user, logout_user
 
+from __init__ import create_app
 from user_authentication import Users, user_db
 from utils.context_utils import fetch_weather, get_gender_by_username
 from utils.database_utils import allowed_file, save_file, save_data_to_db
@@ -15,35 +13,7 @@ from utils.embeddings_utils import get_image_embeddings,  get_clothing_type
 from utils.outfit_utils import get_outfit_description, get_outfit
 
 
-UPLOAD_FOLDER = 'images'
-
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-load_dotenv()
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-openai_client = OpenAI(api_key=OPENAI_API_KEY)
-
-os.environ["REPLICATE_API_TOKEN"] = os.getenv("REPLICATE_API_TOKEN")
-
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLITE_URI")
-app.config["SECRET_KEY"] = os.getenv("SQLITE_KEY")
-
-login_manager = LoginManager()
-login_manager.init_app(app)
-
-user_db.init_app(app)
-with app.app_context():
-    user_db.create_all()
-
-MONGO_URI = os.getenv("MONGO_URI")
-client = MongoClient(MONGO_URI)
-db = client.moda
-
-
-@login_manager.user_loader
-def loader_user(user_id):
-    return Users.query.get(user_id)
+app = create_app()
 
 
 @app.route('/register', methods=["POST"])
@@ -51,7 +21,7 @@ def register():
     """When user registers, create account in the sqlite db with password, 
     and create an entry in mongodb to store the closet"""
 
-    collection = db.users
+    collection = current_app.db.users
     username = request.json.get('username')
     gender = request.json.get("gender")
 
@@ -140,7 +110,7 @@ def upload_file():
         "type": clothing_type,
         "image_embeddings": image_embeddings
     }
-    save_data_to_db(data, db)
+    save_data_to_db(data, current_app.db)
     
     return jsonify({'success': True,
                     'message': 'File uploaded successfully'}), 201
@@ -153,13 +123,13 @@ def recommend_outfit():
     username = request.json.get('username')
     context = request.json.get('context')
     temperature = fetch_weather(float(request.json.get("latitude")), float(request.json.get("longitude")))
-    gender = get_gender_by_username(username, db)
+    gender = get_gender_by_username(username, current_app.db)
 
-    outfit_description = get_outfit_description(openai_client, gender, context, temperature)
-    outfit = get_outfit(outfit_description, username, db)
+    outfit_description = get_outfit_description(current_app.openai_client, gender, context, temperature)
+    outfit = get_outfit(outfit_description, username, current_app.db)
 
     return jsonify({'outfit': outfit, 'message': "Recommendation Successful"}), 200
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=os.getenv("FLASK_PORT"))
+    app.run(host="0.0.0.0", port=app.config['PORT'])
