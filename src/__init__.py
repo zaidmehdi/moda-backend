@@ -6,7 +6,7 @@ from flask_login import LoginManager
 from openai import OpenAI
 from pymongo import MongoClient
 
-from user_authentication import Users, user_db
+from models import Users, user_db
 
 
 def create_app(config_name='development'):
