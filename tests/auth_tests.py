@@ -13,16 +13,18 @@ class TestAuthentication(unittest.TestCase):
     def setUp(self):
         """Set up the app for testing environment"""
 
-        self.app = create_app(config_name="testing").test_client()
-        self.app_context = create_app(config_name="testing").app_context()
+        self.app = create_app(config_name="testing")        
+        self.app.register_blueprint(auth_bp)
+        self.app_context = self.app.app_context()
         self.app_context.push()
-        self.app.application.register_blueprint(auth_bp)
-        self.collection = self.app.application.db.users
+        self.client = self.app.test_client()
+        self.collection = self.client.application.db.users
     
 
     def tearDown(self):
         """Clean up after the test"""
 
+        self.app.user_db.session.rollback()
         self.app_context.pop()
 
 
@@ -53,7 +55,7 @@ class TestAuthentication(unittest.TestCase):
             "gender": "male"
         }
 
-        response = self.app.post("/register", json=data)
+        response = self.client.post("/register", json=data)
         self._delete_from_mongodb(username)
 
         return response
@@ -67,7 +69,7 @@ class TestAuthentication(unittest.TestCase):
             "password": password
         }
 
-        return self.app.post("/login", json=data)
+        return self.client.post("/login", json=data)
     
 
     def test_register_success(self):

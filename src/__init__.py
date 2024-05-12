@@ -1,4 +1,7 @@
 import os
+import sys
+import tempfile
+
 
 from dotenv import load_dotenv
 from flask import Flask, current_app
@@ -6,6 +9,7 @@ from flask_login import LoginManager
 from openai import OpenAI
 from pymongo import MongoClient
 
+sys.path.append(os.path.dirname(__file__))
 from models import Users, user_db
 
 
@@ -19,7 +23,6 @@ def create_app(config_name='development'):
 
     app.config["SECRET_KEY"] = os.getenv("SQLITE_KEY")
     app.config['UPLOAD_FOLDER'] = os.getenv("UPLOAD_FOLDER")
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLITE_URI")
 
     openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -31,8 +34,16 @@ def create_app(config_name='development'):
 
     if config_name == "production":
         app.config['PORT'] = os.getenv("FLASK_PORT_PROD")
+        app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLITE_URI")
+
+    elif config_name == "testing":
+        app.config['PORT'] = os.getenv("FLASK_PORT")
+        _,  db_path = tempfile.mkstemp()
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
+
     else:
         app.config['PORT'] = os.getenv("FLASK_PORT")
+        app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLITE_URI")
 
     user_db.init_app(app)
     with app.app_context():
