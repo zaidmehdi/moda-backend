@@ -100,6 +100,18 @@ class TestAuthentication(unittest.TestCase):
         self.assertTrue(response.json["success"])
         self.assertEqual(response.json["message"], "User successfully logged in")
 
+    
+    def test_login_wrong_password(self):
+        """Test the login functionality with a wrong password"""
+        username = "test_user"
+        password = "wrong_password"
+
+        response = self._send_login_post_request(username, password)
+
+        self.assertEqual(response.status_code, 401)
+        self.assertFalse(response.json["success"])
+        self.assertEqual(response.json["message"], "Invalid username or password")
+
 
 
 if __name__ == "__main__":
