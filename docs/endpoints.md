@@ -18,7 +18,7 @@
         - `success` (boolean): Indicates if the operation was successful.
         - `message` (string): Message indicating successful registration.
         - `user_id` (string): Username of the registered user.
-    - Failure (400):
+    - Failure (409):
         - `success` (boolean): Indicates if the operation was successful.
         - `message` (string): Error message indicating the reason for failure.
 
@@ -51,7 +51,7 @@
     - `file` (file): Image file of the clothing.
     - `username` (string): Username of the user uploading the file.
 - **Response:**
-    - Success (200):
+    - Success (201):
         - `success` (boolean): Indicates if the upload was successful.
         - `message` (string): Message indicating successful file upload.
     - Failure (400):
