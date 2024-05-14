@@ -47,8 +47,8 @@ def register():
 def login():
     """allow the user to login"""
 
-    username = request.form.get("username")
-    password = request.form.get("password")
+    username = request.json.get("username")
+    password = request.json.get("password")
 
     user = Users.query.filter_by(username=username).first()
 

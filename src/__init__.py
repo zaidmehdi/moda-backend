@@ -21,7 +21,7 @@ def create_app(config_name='development'):
     load_dotenv('.flaskenv')
     load_dotenv('.env')
 
-    app.config["SECRET_KEY"] = os.getenv("SQLITE_KEY")
+    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
     app.config['UPLOAD_FOLDER'] = os.getenv("UPLOAD_FOLDER")
 
     openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
