@@ -113,6 +113,19 @@ class TestAuthentication(unittest.TestCase):
         self.assertEqual(response.json["message"], "Invalid username or password")
 
 
+    def test_login_inexistant_user(self):
+        """Test the login functionality with user that doesn't exist"""
+
+        username = "inexistant_user"
+        password = "test_password"
+
+        response = self._send_login_post_request(username, password)
+
+        self.assertEqual(response.status_code, 401)
+        self.assertFalse(response.json["success"])
+        self.assertEqual(response.json["message"], "Invalid username or password")
+
+
 
 if __name__ == "__main__":
     unittest.main()
