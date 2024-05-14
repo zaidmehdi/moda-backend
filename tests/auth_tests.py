@@ -19,6 +19,9 @@ class TestAuthentication(unittest.TestCase):
         self.app_context.push()
         self.client = self.app.test_client()
         self.collection = self.client.application.db.users
+
+        with self.app.app_context():
+            self._send_register_post_request(username="test_user")
     
 
     def tearDown(self):
@@ -82,6 +85,17 @@ class TestAuthentication(unittest.TestCase):
         self.assertTrue(response.json["success"])
         self.assertEqual(response.json["message"], "User successfully registered")
         self.assertEqual(response.json["user_id"], username)
+
+    
+    def test_register_existing_user(self):
+        """Test registration (/register) with a user that already exists"""
+
+        username = "test_user"
+        response = self._send_register_post_request(username)
+
+        self.assertEqual(response.status_code, 409)
+        self.assertFalse(response.json["success"])
+        self.assertEqual(response.json["message"], "Username already exists")
 
 
 

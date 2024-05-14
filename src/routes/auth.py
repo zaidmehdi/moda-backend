@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, current_app, request
 from flask_login import login_user, logout_user
+from sqlalchemy.exc import IntegrityError
 
 from models import Users, user_db
 
@@ -24,7 +25,11 @@ def register():
     user = Users(username=username,
                     password=request.json.get("password"))
     user_db.session.add(user)
-    user_db.session.commit()
+    try:
+        user_db.session.commit()
+    except IntegrityError:
+        return jsonify({"success": False,
+                        'message': 'Username already exists'}), 409
 
     new_user = {'_id': username, 
                 'gender': gender,
