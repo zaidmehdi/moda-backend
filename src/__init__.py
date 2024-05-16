@@ -6,6 +6,7 @@ import tempfile
 from dotenv import load_dotenv
 from flask import Flask, current_app
 from flask_login import LoginManager
+from flask_migrate import Migrate
 from openai import OpenAI
 from pymongo import MongoClient
 
@@ -17,6 +18,7 @@ def create_app(config_name='development'):
     """Initialize the app with correct configuration"""
 
     app = Flask(__name__)
+    Migrate(app, user_db)
 
     load_dotenv('.flaskenv')
     load_dotenv('.env')
