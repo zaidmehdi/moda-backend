@@ -3,6 +3,7 @@ from flask_login import login_user, logout_user
 from sqlalchemy.exc import IntegrityError
 
 from models import Users, user_db
+from utils.auth_utils import validate_email
 
 
 auth_bp = Blueprint('auth', __name__)
@@ -16,22 +17,37 @@ def signup():
     collection = current_app.db.users
     username = request.json.get('username')
     gender = request.json.get("gender")
+    email = request.json.get("email")
 
-    existing_user = collection.find_one({'_id': username})
+    if not validate_email(email):
+        return jsonify({
+            "success": False,
+            "message": "Invalid email format"
+        }), 400
+
+    existing_user = collection.find_one({'_id': email})
     if existing_user:
-        return jsonify({"success": False,
-                        'message': 'Username already exists'}), 409
+        return jsonify({
+            "success": False,
+            'message': 'User already exists'
+        }), 409
 
-    user = Users(username=username,
-                    password=request.json.get("password"))
+    user = Users(
+            username=username,
+            gender=gender,
+            email=email,         
+            password=request.json.get("password")
+        )
     user_db.session.add(user)
     try:
         user_db.session.commit()
     except IntegrityError:
-        return jsonify({"success": False,
-                        'message': 'Username already exists'}), 409
+        return jsonify({
+            "success": False,
+            'message': 'User already exists'
+        }), 409
 
-    new_user = {'_id': username, 
+    new_user = {'_id': email, 
                 'gender': gender,
                 "closet": {}}
     collection.insert_one(new_user)
