@@ -8,9 +8,9 @@ from models import Users, user_db
 auth_bp = Blueprint('auth', __name__)
 
 
-@auth_bp.route('/register', methods=["POST"])
-def register():
-    """When user registers, create account in the sqlite db with password, 
+@auth_bp.route('/signup', methods=["POST"])
+def signup():
+    """When user signs up, create account in the sqlite db with password, 
     and create an entry in mongodb to store the closet"""
 
     collection = current_app.db.users

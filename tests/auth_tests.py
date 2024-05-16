@@ -19,7 +19,7 @@ class TestAuthentication(unittest.TestCase):
         self.collection = self.client.application.db.users
 
         with self.app.app_context():
-            self._send_register_post_request(username="test_user", password="test_password")
+            self._send_signup_post_request(username="test_user", password="test_password")
     
 
     def tearDown(self):
@@ -36,8 +36,8 @@ class TestAuthentication(unittest.TestCase):
         self.collection.delete_one({"_id": username})
 
     
-    def _send_register_post_request(self, username, password):
-        """Method to send a post request to the /register endpoint
+    def _send_signup_post_request(self, username, password):
+        """Method to send a post request to the /signup endpoint
         and delete the user's entry from mongodb"""
 
         data = {
@@ -46,7 +46,7 @@ class TestAuthentication(unittest.TestCase):
             "gender": "male"
         }
 
-        response = self.client.post("/register", json=data)
+        response = self.client.post("/signup", json=data)
         self._delete_from_mongodb(username)
 
         return response
@@ -63,12 +63,12 @@ class TestAuthentication(unittest.TestCase):
         return self.client.post("/login", json=data)
     
 
-    def test_register_success(self):
-        """Test registration (/register) with valid data"""
+    def test_signup_success(self):
+        """Test signup (/signup) with valid data"""
         
         username = "new_user"
         password = "new_password"
-        response = self._send_register_post_request(username, password)
+        response = self._send_signup_post_request(username, password)
         
         self.assertEqual(response.status_code, 201)
         self.assertTrue(response.json["success"])
@@ -76,12 +76,12 @@ class TestAuthentication(unittest.TestCase):
         self.assertEqual(response.json["user_id"], username)
 
     
-    def test_register_existing_user(self):
-        """Test registration (/register) with a user that already exists"""
+    def test_signup_existing_user(self):
+        """Test registration (/signup) with a user that already exists"""
 
         username = "test_user"
         password = 'test_password'
-        response = self._send_register_post_request(username, password)
+        response = self._send_signup_post_request(username, password)
 
         self.assertEqual(response.status_code, 409)
         self.assertFalse(response.json["success"])
