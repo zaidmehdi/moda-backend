@@ -29,11 +29,11 @@ class TestAuthentication(unittest.TestCase):
         self.app_context.pop()
 
 
-    def _delete_from_mongodb(self, email):
+    def _delete_from_mongodb(self, username):
         """Delete the user from mongodb (after testing registration)
         because it is not rolled back automatically by flask, unlike sqlite"""
         
-        self.collection.delete_one({"_id": email})
+        self.collection.delete_one({"_id": username})
 
     
     def _send_signup_post_request(self, username, email, password):
@@ -48,7 +48,7 @@ class TestAuthentication(unittest.TestCase):
         }
 
         response = self.client.post("/signup", json=data)
-        self._delete_from_mongodb(email)
+        self._delete_from_mongodb(username)
 
         return response
     

@@ -26,7 +26,7 @@ def signup():
             "message": "Invalid email format"
         }), 400
 
-    existing_user = collection.find_one({'_id': email})
+    existing_user = collection.find_one({'_id': username})
     if existing_user:
         return jsonify({
             "success": False,
@@ -49,7 +49,7 @@ def signup():
             'message': 'User already exists'
         }), 409
 
-    new_user = {'_id': email, 
+    new_user = {'_id': username,
                 "closet": {}}
     collection.insert_one(new_user)
 
