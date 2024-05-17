@@ -18,6 +18,7 @@ def signup():
     username = request.json.get('username')
     gender = request.json.get("gender")
     email = request.json.get("email")
+    password=request.json.get("password")
 
     if not validate_email(email):
         return jsonify({
@@ -36,8 +37,9 @@ def signup():
             username=username,
             gender=gender,
             email=email,         
-            password=request.json.get("password")
         )
+    user.set_password(password)
+
     user_db.session.add(user)
     try:
         user_db.session.commit()
@@ -55,7 +57,7 @@ def signup():
     return jsonify({
         "success": True,
         "message": "User successfully registered",
-        "user_id": username
+        "username": username
         }), 201
 
 
@@ -63,12 +65,12 @@ def signup():
 def login():
     """allow the user to login"""
 
-    username = request.json.get("username")
+    email = request.json.get("email")
     password = request.json.get("password")
 
-    user = Users.query.filter_by(username=username).first()
+    user = Users.query.filter_by(email=email).first()
 
-    if user and user.password == password:
+    if user and user.check_password(password):
         login_user(user)
         return jsonify({
             "success": True,
