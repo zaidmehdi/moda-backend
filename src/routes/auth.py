@@ -78,7 +78,7 @@ def login():
     
     return jsonify({
         "success": False,
-        "message": "Invalid username or password"
+        "message": "Invalid email or password"
         }), 401
 
 
