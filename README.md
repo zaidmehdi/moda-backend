@@ -31,11 +31,15 @@ MONGO_URI=
 DATABASE_URI=
 DATABASE_PREFIX=
 ```
-4. **Build the docker image:**
+4. **Create the directories needed to store the user data and closet items images:**
+```
+mkdir database images
+```
+5. **Build the docker image:**
 ```
 docker build -t moda .
 ```
-5. **Run the docker image:**
+6. **Run the docker image:**
 ```
 docker run moda
 ```
