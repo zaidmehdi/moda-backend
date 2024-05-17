@@ -50,7 +50,6 @@ def signup():
         }), 409
 
     new_user = {'_id': email, 
-                'gender': gender,
                 "closet": {}}
     collection.insert_one(new_user)
 
