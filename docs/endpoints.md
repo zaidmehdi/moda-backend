@@ -1,23 +1,24 @@
 # API endpoints
 
-1. `/register`
+1. `/signup`
 2. `/login`
 3. `/logout`
 4. `/upload`
 5. `/recommend`
 
-## 1. `/register`
+## 1. `/signup`
 - **Method:** POST
-- **Description:** Allows a user to register by creating an account in the SQLite database with a password and creating an entry in MongoDB to store the user's closet.
+- **Description:** Allows a user to signup by creating an account in the SQLite database with a password and creating an entry in MongoDB to store the user's closet.
 - **Request Body:**
-    - `username` (string): Username of the user registering.
-    - `password` (string): Password chosen by the user.
+    - `username` (string): Username of the user.
     - `gender` (string): Gender of the user.
+    - `email` (string): Email address of the user.
+    - `password` (string): Password chosen by the user.
 - **Response:**
     - Success (201):
         - `success` (boolean): Indicates if the operation was successful.
         - `message` (string): Message indicating successful registration.
-        - `user_id` (string): Username of the registered user.
+        - `username` (string): Username of the registered user.
     - Failure (409):
         - `success` (boolean): Indicates if the operation was successful.
         - `message` (string): Error message indicating the reason for failure.
@@ -26,7 +27,7 @@
 - **Method:** POST
 - **Description:** Allows a registered user to log in.
 - **Request Body:**
-    - `username` (string): Username of the user.
+    - `email` (string): Email address of the user.
     - `password` (string): Password of the user.
 - **Response:**
     - Success (200):

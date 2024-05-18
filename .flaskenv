@@ -1,3 +1,5 @@
+FLASK_APP=src/main.py
+
 UPLOAD_FOLDER=images
 
 FLASK_PORT=8080

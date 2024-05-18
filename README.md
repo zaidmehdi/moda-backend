@@ -16,7 +16,7 @@ git clone https://github.com/zaidmehdi/moda-backend.git
 ```
 cd moda-backend/
 ```
-3. **Create a .env file with the following secrets:**
+3. **Create a .env file populated with the following secrets:**
 ```
 SECRET_KEY=
 
@@ -28,13 +28,18 @@ OPENAI_API_KEY=
 
 MONGO_URI=
 
-SQLITE_URI=
+DATABASE_URI=
+DATABASE_PREFIX=
 ```
-4. **Build the docker image:**
+4. **Create the directories needed to store the user data and closet items images:**
+```
+mkdir database images
+```
+5. **Build the docker image:**
 ```
 docker build -t moda .
 ```
-5. **Run the docker image:**
+6. **Run the docker image:**
 ```
 docker run moda
 ```
