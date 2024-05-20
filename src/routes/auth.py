@@ -3,7 +3,7 @@ from flask_login import login_user, logout_user
 from sqlalchemy.exc import IntegrityError
 
 from models import Users, user_db
-from utils.auth_utils import validate_email
+from utils.auth_utils import validate_email, send_verification_email
 
 
 auth_bp = Blueprint('auth', __name__)
@@ -53,11 +53,35 @@ def signup():
                 "closet": {}}
     collection.insert_one(new_user)
 
+    send_verification_email(user)
+
     return jsonify({
         "success": True,
         "message": "User successfully registered",
         "username": username
         }), 201
+
+
+@auth_bp.route("/verify_email/<token>")
+def verify_email(token):
+    """Route where users are redirected to verify email"""
+
+    user = Users.query.filter_by(verification_token=token).first()
+    
+    if user:
+        user.is_verified = True
+        user.verification_token = None
+        user_db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Email verified successfully"
+        }), 201
+    else:
+        return jsonify({
+            "success": False,
+            "message": "Invalid or expired token"
+        }), 404
 
 
 @auth_bp.route("/login", methods=["POST"])
@@ -70,7 +94,14 @@ def login():
     user = Users.query.filter_by(email=email).first()
 
     if user and user.check_password(password):
+        if not user.is_verified:
+            return jsonify({
+                "success": False,
+                "message": "Email not verified. Please check your email to verify your account."
+            }), 403
+        
         login_user(user)
+        
         return jsonify({
             "success": True,
             "message": "User successfully logged in"
