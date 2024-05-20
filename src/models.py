@@ -1,3 +1,5 @@
+import uuid
+
 import bcrypt
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
@@ -11,6 +13,8 @@ class Users(UserMixin, user_db.Model):
     gender = user_db.Column(user_db.String(10), nullable=False)
     email = user_db.Column(user_db.String(250), unique=True, nullable=False)
     password_hash = user_db.Column(user_db.String(250), nullable=False)
+    is_verified = user_db.Column(user_db.Boolean, default=False)
+    verification_token = user_db.Column(user_db.String, default=str(uuid.uuid4()))
 
     def set_password(self, password):
         """Hash the password and store the hash."""
