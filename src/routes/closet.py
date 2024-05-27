@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, current_app, request
 
 from utils.database_utils import allowed_file, save_file, save_data_to_db
 from utils.embeddings_utils import get_image_embeddings,  get_clothing_type
-
+from utils.background_utils import remove_image_background
 
 closet_bp = Blueprint('closet', __name__)
 
@@ -25,7 +25,8 @@ def upload_file():
         return jsonify({'success': False,
                         'message': 'No username provided'}), 400
     
-    file_path = save_file(file, closet_bp)
+    no_bakcground_file = remove_image_background(file)
+    file_path = save_file(no_bakcground_file, closet_bp)
 
     image = open(file_path, "rb")
     clothing_type = get_clothing_type(image)
