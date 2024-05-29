@@ -2,9 +2,9 @@ import os
 import sys
 import tempfile
 
-
 from dotenv import load_dotenv
 from flask import Flask, current_app
+from flask_jwt_extended import JWTManager
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from openai import OpenAI
@@ -25,6 +25,9 @@ def create_app(config_name='development'):
 
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
     app.config['UPLOAD_FOLDER'] = os.getenv("UPLOAD_FOLDER")
+    app.config['JWT_SECRET_KEY'] = os.getenv("JWT_SECRET_KEY")
+
+    jwt = JWTManager(app)
 
     openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 

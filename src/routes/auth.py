@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, current_app, request
-from flask_login import login_user, logout_user
+from flask_jwt_extended import create_access_token
+from flask_login import logout_user
 from sqlalchemy.exc import IntegrityError
 
 from models import Users, user_db
@@ -70,11 +71,8 @@ def login():
     user = Users.query.filter_by(email=email).first()
 
     if user and user.check_password(password):
-        login_user(user)
-        return jsonify({
-            "success": True,
-            "message": "User successfully logged in"
-            }), 200
+        access_token = create_access_token(identity={'username': user.username, 'email': user.email})
+        return jsonify(access_token=access_token), 200
     
     return jsonify({
         "success": False,

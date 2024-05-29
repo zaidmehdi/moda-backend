@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, current_app, request
-from flask_login import login_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from utils.database_utils import allowed_file, save_file, save_data_to_db
 from utils.embeddings_utils import get_image_embeddings,  get_clothing_type
@@ -9,9 +9,12 @@ closet_bp = Blueprint('closet', __name__)
 
 
 @closet_bp.route('/upload', methods=['POST'])
-@login_required
+@jwt_required()
 def upload_file():
     """allow the user to upload pictures of their clothes"""
+
+    current_user = get_jwt_identity()
+    print("USER MAKING REQUEST:", current_user)
 
     if 'file' not in request.files:
         return jsonify({'success': False,
@@ -23,9 +26,6 @@ def upload_file():
     if not allowed_file(file.filename):
         return jsonify({'success': False,
                         'message': 'File extension not allowed'}), 400
-    if 'username' not in request.form:
-        return jsonify({'success': False,
-                        'message': 'No username provided'}), 400
     
     no_background_file = remove_image_background(file)
     file_path = save_file(file, no_background_file)
@@ -34,7 +34,7 @@ def upload_file():
     clothing_type = get_clothing_type(image)
     image_embeddings = get_image_embeddings(image)
     data = {
-        "username": request.form["username"],
+        "username": current_user["username"],
         "image_path": file_path,
         "type": clothing_type,
         "image_embeddings": image_embeddings
