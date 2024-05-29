@@ -48,9 +48,10 @@
 ## 4. `/upload`
 - **Method:** POST
 - **Description:** Allows a user to upload pictures of their clothes.
+- **Headers:**
+    - `Authorization` (string): Bearer token obtained after login.
 - **Request Body:**
     - `file` (file): Image file of the clothing.
-    - `username` (string): Username of the user uploading the file.
 - **Response:**
     - Success (201):
         - `success` (boolean): Indicates if the upload was successful.
@@ -62,8 +63,9 @@
 ## 5. `/recommend`
 - **Method:** POST
 - **Description:** Provides outfit recommendations for a user based on various factors such as context, weather, and gender.
+- **Headers:**
+    - `Authorization` (string): Bearer token obtained after login.
 - **Request Body:**
-    - `username` (string): Username of the user.
     - `context` (string): Context for the outfit recommendation.
     - `latitude` (float): Latitude coordinate for weather information.
     - `longitude` (float): Longitude coordinate for weather information.
