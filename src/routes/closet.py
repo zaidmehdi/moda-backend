@@ -25,8 +25,8 @@ def upload_file():
         return jsonify({'success': False,
                         'message': 'No username provided'}), 400
     
-    no_bakcground_file = remove_image_background(file)
-    file_path = save_file(no_bakcground_file, closet_bp)
+    no_background_file = remove_image_background(file)
+    file_path = save_file(file, no_background_file)
 
     image = open(file_path, "rb")
     clothing_type = get_clothing_type(image)

@@ -1,5 +1,7 @@
+import io
 import os
 
+from PIL import Image
 from werkzeug.utils import secure_filename
 
 
@@ -9,17 +11,23 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def save_file(file, app):
+def save_file(file, no_background_file):
     """Makes filename unique and saves it"""
     filename = secure_filename(file.filename)
-    name, extension = os.path.splitext(filename)
+    name, _ = os.path.splitext(filename)
     counter = 1
-    while os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
-        filename = f"{name}_{counter}{extension}"
+    while os.path.exists(os.path.join(os.getenv("UPLOAD_FOLDER"), filename)):
+        filename = f"{name}_{counter}.png"
         counter += 1
 
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    file.save(file_path)
+    file_path = os.path.join(os.getenv("UPLOAD_FOLDER"), filename)
+
+    no_background_image = Image.open(io.BytesIO(no_background_file))
+    img_io = io.BytesIO()
+    no_background_image.save(img_io, format='PNG')
+    img_io.seek(0)
+    with open(file_path, 'wb') as f:
+        f.write(img_io.getbuffer())
 
     return file_path
 
