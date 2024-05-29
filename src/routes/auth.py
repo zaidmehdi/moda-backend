@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, current_app, request
 from flask_jwt_extended import create_access_token
-from flask_login import logout_user
 from sqlalchemy.exc import IntegrityError
 
 from models import Users, user_db
