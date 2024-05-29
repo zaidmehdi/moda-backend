@@ -78,15 +78,3 @@ def login():
         "success": False,
         "message": "Invalid email or password"
         }), 401
-
-
-@auth_bp.route("/logout")
-def logout():
-    """allow the user to logout"""
-
-    logout_user()
-
-    return jsonify({
-        "success": True,
-        "message": "Successfully logged out (or already logged out)"
-        }), 200

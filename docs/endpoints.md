@@ -37,13 +37,6 @@
         - `success` (boolean): Indicates if the login was unsuccessful.
         - `message` (string): Error message indicating invalid username or password.
 
-## 3. `/logout`
-- **Method:** GET
-- **Description:** Allows a logged-in user to log out.
-- **Response:**
-    - Success (200):
-        - `success` (boolean): Indicates if the logout was successful.
-        - `message` (string): Message indicating successful logout.
 
 ## 4. `/upload`
 - **Method:** POST
