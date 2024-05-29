@@ -14,6 +14,16 @@ sys.path.append(os.path.dirname(__file__))
 from models import Users, user_db
 
 
+def get_email_config(app):
+    app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+    app.config['MAIL_PORT'] = os.getenv('MAIL_PORT')
+    app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+    app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+    app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
+    app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL') == 'False'
+    app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
+
+
 def create_app(config_name='development'):
     """Initialize the app with correct configuration"""
 
@@ -22,6 +32,8 @@ def create_app(config_name='development'):
 
     load_dotenv('.flaskenv')
     load_dotenv('.env')
+
+    get_email_config(app)
 
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
     app.config['UPLOAD_FOLDER'] = os.getenv("UPLOAD_FOLDER")
