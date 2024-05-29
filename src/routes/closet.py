@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, current_app, request
+from flask_login import login_required
 
 from utils.database_utils import allowed_file, save_file, save_data_to_db
 from utils.embeddings_utils import get_image_embeddings,  get_clothing_type
@@ -8,6 +9,7 @@ closet_bp = Blueprint('closet', __name__)
 
 
 @closet_bp.route('/upload', methods=['POST'])
+@login_required
 def upload_file():
     """allow the user to upload pictures of their clothes"""
 

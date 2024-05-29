@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, current_app, request
+from flask_login import login_required
 
 from utils.context_utils import fetch_weather, get_gender_by_username
 from utils.outfit_utils import get_outfit_description, get_outfit
@@ -8,6 +9,7 @@ outfit_bp = Blueprint('outfit', __name__)
 
 
 @outfit_bp.route("/recommend", methods=["POST"])
+@login_required
 def recommend_outfit():
     """Takes as input a username, a context, latitude, and longitude"""
 
