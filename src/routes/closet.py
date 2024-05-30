@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, current_app, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from utils.database_utils import allowed_file, save_file, save_data_to_db
+from utils.database_utils import allowed_file, save_file, save_data_to_db, get_user_clothes
 from utils.embeddings_utils import get_image_embeddings,  get_clothing_type
 from utils.background_utils import remove_image_background
 
@@ -43,3 +43,22 @@ def upload_file():
     
     return jsonify({'success': True,
                     'message': 'File uploaded successfully'}), 201
+
+
+@closet_bp.route('/clothes', methods=['GET'])
+@jwt_required()
+def get_clothes():
+    """Get a list of the clothes owned by the user"""
+
+    current_user = get_jwt_identity()
+    username = current_user["username"]
+    clothes = get_user_clothes(username, current_app.db)
+    print("LENGTH CLOTHES", len(clothes))
+    print(f"first clothes {clothes[0]['type']}")
+
+    if len(clothes) == 0:
+        return jsonify({"success": False,
+                        "message": f"Could not find any clothes for user {username}"}), 400
+    
+    return jsonify({"success": True,
+                    "clothes": clothes}), 200

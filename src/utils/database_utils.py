@@ -57,3 +57,26 @@ def save_data_to_db(data:dict, db):
     )
 
 
+def get_user_clothes(username, db):
+    """ Retrive a list of all the clothes of a given user, with their given type"""
+
+    user_document = db.users.find_one({"_id": username})
+
+    if user_document is None:
+        return []
+    
+    closet = user_document.get("closet", [])
+    clothes_list = []
+
+    for item in closet:
+        item_type = closet[item]["type"]
+        image_path = closet[item]["path"]
+
+        if os.path.isfile(image_path):
+            clothing_item = {
+                "type": item_type,
+                "path": image_path
+            }
+            clothes_list.append(clothing_item)
+
+    return clothes_list
