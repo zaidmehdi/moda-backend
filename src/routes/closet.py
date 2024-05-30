@@ -1,7 +1,9 @@
-from flask import Blueprint, jsonify, current_app, request
+import os
+
+from flask import Blueprint, current_app, request, jsonify, send_from_directory
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-from utils.database_utils import allowed_file, save_file, save_data_to_db, get_user_clothes
+from utils.database_utils import allowed_file, save_file, save_data_to_db, get_user_clothes, is_image_owner
 from utils.embeddings_utils import get_image_embeddings,  get_clothing_type
 from utils.background_utils import remove_image_background
 
@@ -14,7 +16,6 @@ def upload_file():
     """allow the user to upload pictures of their clothes"""
 
     current_user = get_jwt_identity()
-    print("USER MAKING REQUEST:", current_user)
 
     if 'file' not in request.files:
         return jsonify({'success': False,
@@ -62,3 +63,18 @@ def get_clothes():
     
     return jsonify({"success": True,
                     "clothes": clothes}), 200
+
+
+@closet_bp.route("/images/<filename>")
+@jwt_required()
+def serve_image(filename):
+    """Serve image from storage to authorized user only"""
+
+    current_user = get_jwt_identity()
+    username = current_user["username"]
+
+    if is_image_owner(username, filename, current_app.db):
+        upload_folder = os.path.join(os.getcwd(), os.getenv("UPLOAD_FOLDER"))
+        return send_from_directory(upload_folder, filename), 200
+    else:
+        return jsonify({"error": "Unauthorized access"}), 403

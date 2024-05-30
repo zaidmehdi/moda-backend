@@ -7,12 +7,14 @@ from werkzeug.utils import secure_filename
 
 def allowed_file(filename):
     """Checks if uploaded file is allowed"""
+
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def save_file(file, no_background_file):
     """Makes filename unique and saves it"""
+
     filename = secure_filename(file.filename)
     name, _ = os.path.splitext(filename)
     counter = 1
@@ -58,7 +60,7 @@ def save_data_to_db(data:dict, db):
 
 
 def get_user_clothes(username, db):
-    """ Retrive a list of all the clothes of a given user, with their given type"""
+    """ Retrieve a list of all the clothes of a given user, with their given type"""
 
     user_document = db.users.find_one({"_id": username})
 
@@ -80,3 +82,13 @@ def get_user_clothes(username, db):
             clothes_list.append(clothing_item)
 
     return clothes_list
+
+
+def is_image_owner(username, filename, db):
+    """Checks whether a user is the owner of a given file"""
+
+    user_document = db.users.find_one({"_id": username})
+    closet = user_document.get("closet", [])
+    images_list = [closet[item]["path"] for item in closet]
+    
+    return os.path.join(os.getenv("UPLOAD_FOLDER"), filename) in images_list
