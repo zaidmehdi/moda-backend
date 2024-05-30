@@ -38,7 +38,7 @@
         - `message` (string): Error message indicating invalid username or password.
 
 
-## 4. `/upload`
+## 3. `/upload`
 - **Method:** POST
 - **Description:** Allows a user to upload pictures of their clothes.
 - **Headers:**
@@ -53,7 +53,29 @@
         - `success` (boolean): Indicates if the upload was successful.
         - `message` (string): Error message indicating the reason for failure.
 
-## 5. `/recommend`
+## 4. `/clothes`
+- **Method:** GET
+- **Description:** Get a list of the clothes owned by the authenticated user (type and image path).
+- **Headers:**
+    - `Authorization` (string): Bearer token obtained after login.
+- **Response:**
+    - Success (200):
+        - `success` (boolean): Indicates if the request was successful.
+        - `clothes` (list): List of the clothes where every element is a dictionary containing the `type` (tops, bottoms, shoes, outerwear) and the `path` (url of the image)
+    - Failure (400):
+        - `success` (boolean): Indicates if the request was successful.
+        - `message` (string): Failure message.
+
+## 5. `/images/<filename>`
+- **Method:** GET
+- **Description:** Get a an image from the storage.
+- **Headers:**
+    - `Authorization` (string): Bearer token obtained after login.
+- **Response:**
+    - Success (200):
+    - Failure (403):
+
+## 6. `/recommend`
 - **Method:** POST
 - **Description:** Provides outfit recommendations for a user based on various factors such as context, weather, and gender.
 - **Headers:**
