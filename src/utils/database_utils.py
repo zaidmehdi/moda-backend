@@ -2,7 +2,7 @@ import os
 
 from werkzeug.utils import secure_filename
 
-
+ 
 def allowed_file(filename):
     """Checks if uploaded file is allowed"""
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -47,5 +47,3 @@ def save_data_to_db(data:dict, db):
         {"_id": data["username"]},
         {"$set": {f"closet.{new_item_key}": new_item}}
     )
-
-
