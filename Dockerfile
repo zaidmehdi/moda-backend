@@ -15,6 +15,7 @@ COPY src /app/src
 COPY images /app/images
 COPY database /app/database
 COPY .env /app/.env
+COPY .flaskenv /app/.flaskenv
 
 
 EXPOSE 80
