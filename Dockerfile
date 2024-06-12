@@ -13,9 +13,10 @@ RUN pip install --upgrade pip && \
 
 COPY src /app/src
 COPY images /app/images
+COPY database /app/database
 COPY .env /app/.env
 
 
 EXPOSE 80
 
-CMD ["python", "src/main.py"]
+CMD ["python", "src/main.py", "--config", "production"]

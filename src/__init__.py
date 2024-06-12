@@ -55,7 +55,6 @@ def create_app(config_name='development'):
         app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_PREFIX") + \
             os.path.join(os.getcwd(), os.getenv("DATABASE_URI"))
 
-    print(f'DATABASE: {app.config["SQLALCHEMY_DATABASE_URI"]}')
     user_db.init_app(app)
     with app.app_context():
         user_db.create_all()
