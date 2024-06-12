@@ -41,5 +41,15 @@ docker build -t moda .
 ```
 6. **Run the docker image:**
 ```
-docker run moda
+docker run -p 80:80 moda
+```
+   
+If the previous docker run command doesn't work (it might not work on the virtual machine), use:
+```
+docker run --network host -p 80:80 moda
+```
+  
+Finally, if you want to run it in detached mode, and make it restart automatically if it fails:
+```
+docker run --network host -p 80:80 -d --restart unless-stopped moda
 ```

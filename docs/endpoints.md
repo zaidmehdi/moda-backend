@@ -22,6 +22,18 @@
     - Failure (409):
         - `success` (boolean): Indicates if the operation was successful.
         - `message` (string): Error message indicating the reason for failure.
+- **Curl Command:**
+```
+curl -X POST \
+  http://<server_address>/signup \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "username": "test_username",
+    "gender": "male",
+    "email": "test_email@example.com",
+    "password": "test_password"
+}'
+```
 
 ## 2. `/login`
 - **Method:** POST
@@ -36,7 +48,16 @@
     - Failure (401):
         - `success` (boolean): Indicates if the login was unsuccessful.
         - `message` (string): Error message indicating invalid username or password.
-
+- **Curl Command:**
+```
+curl -X POST \
+    http://<server_address>/login \
+    -H "Content-Type: application/json" \
+    -d '{
+        "email": "test_email@example.com", 
+        "password": "test_password"
+        }'
+```
 
 ## 3. `/upload`
 - **Method:** POST
@@ -52,6 +73,13 @@
     - Failure (400):
         - `success` (boolean): Indicates if the upload was successful.
         - `message` (string): Error message indicating the reason for failure.
+- **Curl Command:**
+```
+curl -X POST \
+  http://<server_address>/upload \
+  -H 'Authorization: Bearer <YOUR_JWT_TOKEN>' \
+  -F 'file=@</path/to/your/file.jpg>'
+```
 
 ## 4. `/clothes`
 - **Method:** GET
@@ -65,15 +93,27 @@
     - Failure (400):
         - `success` (boolean): Indicates if the request was successful.
         - `message` (string): Failure message.
+- **Curl Command:**
+```
+curl -X GET \
+    http://<server_address>/clothes \
+     -H "Authorization: Bearer <YOUR_JWT_TOKEN>"
+```
 
 ## 5. `/images/<filename>`
 - **Method:** GET
-- **Description:** Get a an image from the storage.
+- **Description:** Get an image from the storage.
 - **Headers:**
     - `Authorization` (string): Bearer token obtained after login.
 - **Response:**
     - Success (200):
     - Failure (403):
+- **Curl Command:**
+```
+curl -X GET \
+    -H "Authorization: Bearer <YOUR_JWT_TOKEN>" \
+    http://<server_address>/images/<filename>
+```
 
 ## 6. `/recommend`
 - **Method:** POST
@@ -88,3 +128,15 @@
     - Success (200):
         - `outfit` (object): Recommended outfit details.
         - `message` (string): Message indicating successful recommendation.
+- **Curl Command:**
+```
+curl -X POST \
+  http://<server_address>/recommend \
+  -H 'Authorization: Bearer <YOUR_JWT_TOKEN>' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "context": "casual",
+    "latitude": "40.7128",
+    "longitude": "-74.0060"
+}'
+```
