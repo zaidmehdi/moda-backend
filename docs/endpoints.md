@@ -2,9 +2,10 @@
 
 1. `/signup`
 2. `/login`
-3. `/logout`
-4. `/upload`
-5. `/recommend`
+3. `/upload`
+4. `/clothes`
+5. `/images/<filename>`
+6. `/recommend`
 
 ## 1. `/signup`
 - **Method:** POST
